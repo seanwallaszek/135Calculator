@@ -41,6 +41,12 @@
     font-size: 12px; color: #777; margin-top: 20px; font-style: italic;
     background: #f9f9f9; padding: 10px; border-radius: 4px;
   }
+  /* Mobile Fix */
+input[type="number"], input[type="text"], select {
+    width: 100% !important;        /* Forces them to fit the container width */
+    max-width: 100% !important;    /* Prevents overflow off the screen */
+    box-sizing: border-box !important; /* Keeps padding inside the box */
+}
 </style>
 </head>
 <body>
