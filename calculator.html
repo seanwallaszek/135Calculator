@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  .calc-container {
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid #cfcfcf;
+    padding: 25px;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+  .calc-header {
+    text-align: center;
+    background: #002f6c; /* Union Blue */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 25px;
+  }
+  .calc-header h3 { margin: 0; font-size: 20px; }
+  .calc-row {
+    display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center;
+  }
+  .calc-label { flex: 2; font-size: 15px; font-weight: 600; color: #444; }
+  .calc-input {
+    flex: 1; padding: 8px; border: 2px solid #b7e1cd; border-radius: 4px;
+    background-color: #f0fff4; text-align: center; font-size: 15px; color: #333;
+  }
+  .calc-result {
+    flex: 1; padding: 8px; font-weight: 700; color: #0056b3;
+    text-align: right; background: #eef6ff; border-radius: 4px;
+  }
+  .section-title {
+    margin-top: 25px; margin-bottom: 15px; font-size: 14px;
+    text-transform: uppercase; color: #888; border-bottom: 1px solid #eee; padding-bottom: 5px;
+  }
+  .note {
+    font-size: 12px; color: #777; margin-top: 20px; font-style: italic;
+    background: #f9f9f9; padding: 10px; border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="calc-container">
+  <div class="calc-header"><h3>JCBA TA Boarding Pay Calculator</h3></div>
+
+  <div class="section-title">Step 1: Enter Your Details</div>
+  
+  <div class="calc-row">
+    <span class="calc-label">Pay Step (Years):</span>
+    <select id="payStep" class="calc-input">
+      <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+      <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+      <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+      <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+      <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+      <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+      <option value="19">19</option><option value="20" selected>20</option>
+    </select>
+  </div>
+
+  <div class="calc-row">
+    <span class="calc-label">Payscale Column:</span>
+    <select id="payColumn" class="calc-input">
+      <option value="DOS+3" selected>DOS+3</option>
+      <option value="DOS+4">DOS+4</option>
+    </select>
+  </div>
+
+  <div class="calc-row">
+    <span class="calc-label">Average Legs per Duty Day:</span>
+    <input type="number" id="avgLegs" class="calc-input" value="3">
+  </div>
+
+  <div class="calc-row">
+    <span class="calc-label">Average Duty Days per Month:</span>
+    <input type="number" id="avgDays" class="calc-input" value="16">
+  </div>
+
+  <div class="calc-row">
+    <span class="calc-label">Monthly Flight Hours:</span>
+    <input type="number" id="monthlyHours" class="calc-input" value="95">
+  </div>
+
+  <div class="section-title">Step 2: Your Results</div>
+
+  <div class="calc-row"><span class="calc-label">Hourly Rate Used:</span><span id="rateUsed" class="calc-result">$0.00</span></div>
+  <div class="calc-row"><span class="calc-label">Extra Pay Hours (Credit):</span><span id="extraHours" class="calc-result">0</span></div>
+  <div class="calc-row"><span class="calc-label">Monthly Increase:</span><span id="monthlyIncrease" class="calc-result">$0.00</span></div>
+  <div class="calc-row"><span class="calc-label">Annual Increase:</span><span id="annualIncrease" class="calc-result">$0.00</span></div>
+  <div style="border-top: 1px dashed #ccc; margin: 10px 0;"></div>
+  <div class="calc-row"><span class="calc-label">Current Annual Salary:</span><span id="currentAnnual" class="calc-result">$0.00</span></div>
+  <div class="calc-row"><span class="calc-label">New Annual Salary:</span><span id="newAnnual" class="calc-result" style="color: #28a745;">$0.00</span></div>
+  <div class="calc-row"><span class="calc-label">Yearly Percent Increase:</span><span id="percentIncrease" class="calc-result">0%</span></div>
+
+  <div class="note">*NOTE: This calculator does NOT take into consideration anything outside of your wage rate, flight hours, and boarding pay.</div>
+</div>
+
+<script>
+  // Pay Scale Data
+  const payRates = {
+    "1": { "DOS+3": 27.82, "DOS+4": 28.24 }, "2": { "DOS+3": 28.33, "DOS+4": 28.76 },
+    "3": { "DOS+3": 28.85, "DOS+4": 29.28 }, "4": { "DOS+3": 29.88, "DOS+4": 30.33 },
+    "5": { "DOS+3": 31.68, "DOS+4": 32.16 }, "6": { "DOS+3": 32.82, "DOS+4": 33.31 },
+    "7": { "DOS+3": 34.45, "DOS+4": 34.97 }, "8": { "DOS+3": 35.93, "DOS+4": 36.47 },
+    "9": { "DOS+3": 37.2, "DOS+4": 37.76 }, "10": { "DOS+3": 38.29, "DOS+4": 38.86 },
+    "11": { "DOS+3": 39.36, "DOS+4": 39.95 }, "12": { "DOS+3": 40.41, "DOS+4": 41.01 },
+    "13": { "DOS+3": 41.09, "DOS+4": 41.7 }, "14": { "DOS+3": 42.11, "DOS+4": 42.74 },
+    "15": { "DOS+3": 42.65, "DOS+4": 43.29 }, "16": { "DOS+3": 43.2, "DOS+4": 43.85 },
+    "17": { "DOS+3": 43.75, "DOS+4": 44.4 }, "18": { "DOS+3": 44.29, "DOS+4": 44.96 },
+    "19": { "DOS+3": 44.87, "DOS+4": 45.54 }, "20": { "DOS+3": 45.5, "DOS+4": 46.18 }
+  };
+
+  function calculatePay() {
+    const step = document.getElementById('payStep').value;
+    const col = document.getElementById('payColumn').value;
+    const legs = parseFloat(document.getElementById('avgLegs').value) || 0;
+    const days = parseFloat(document.getElementById('avgDays').value) || 0;
+    const hours = parseFloat(document.getElementById('monthlyHours').value) || 0;
+
+    let hourlyRate = 0;
+    if (payRates[step] && payRates[step][col]) {
+      hourlyRate = payRates[step][col];
+    }
+
+    const extraHours = (legs * days) * 0.5;
+    const monthlyIncrease = extraHours * (hourlyRate * 0.5);
+    const annualIncrease = monthlyIncrease * 12;
+    const currentAnnual = hours * 12 * hourlyRate;
+    const newAnnual = currentAnnual + annualIncrease;
+    const percentInc = currentAnnual > 0 ? ((annualIncrease / currentAnnual) * 100) : 0;
+
+    function fmt(n) { return "$" + n.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'); }
+
+    document.getElementById('rateUsed').innerText = fmt(hourlyRate);
+    document.getElementById('extraHours').innerText = extraHours.toFixed(2);
+    document.getElementById('monthlyIncrease').innerText = fmt(monthlyIncrease);
+    document.getElementById('annualIncrease').innerText = fmt(annualIncrease);
+    document.getElementById('currentAnnual').innerText = fmt(currentAnnual);
+    document.getElementById('newAnnual').innerText = fmt(newAnnual);
+    document.getElementById('percentIncrease').innerText = percentInc.toFixed(1) + "%";
+  }
+
+  // Attach listeners safely (avoids inline HTML events)
+  document.addEventListener('DOMContentLoaded', function() {
+    const inputs = ['payStep', 'payColumn', 'avgLegs', 'avgDays', 'monthlyHours'];
+    inputs.forEach(id => {
+      document.getElementById(id).addEventListener('change', calculatePay);
+      document.getElementById(id).addEventListener('input', calculatePay);
+    });
+    calculatePay();
+  });
+</script>
+</body>
+</html>
